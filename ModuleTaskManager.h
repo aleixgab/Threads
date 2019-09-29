@@ -42,7 +42,7 @@ private:
 	std::queue<Task*> scheduledTasks;
 	std::queue<Task*> finishedTasks;
 	std::mutex mtx_sch;
-	std::mutex mtx_fns;
+	//std::mutex mtx_fns;
 	std::condition_variable event;
 
 	bool exitFlag = false;
