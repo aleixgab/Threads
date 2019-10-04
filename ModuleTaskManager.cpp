@@ -11,9 +11,12 @@ void ModuleTaskManager::threadMain()
 		// - Insert it into finishedTasks
 		Task* task = nullptr;
 		{
-			std::unique_lock<std::mutex> lock(mtx_sch); //Lock the mutex
+			std::unique_lock<std::mutex> lock(mtx); //Lock the mutex
 			while (scheduledTasks.empty())
 			{
+				if (exitFlag)
+					return void();
+
 				event.wait(lock);
 			}
 			task = scheduledTasks.front();
@@ -23,7 +26,7 @@ void ModuleTaskManager::threadMain()
 
 		task->execute();
 		
-		std::unique_lock<std::mutex> lockF(mtx_sch); //Lock the mutex
+		std::unique_lock<std::mutex> lockF(mtx); //Lock the mutex
 		finishedTasks.push(task);
 	}
 }
@@ -76,7 +79,7 @@ void ModuleTaskManager::scheduleTask(Task* task, Module* owner)
 
 	// TODO 2: Insert the task into scheduledTasks so it is executed by some thread
 
-	std::unique_lock<std::mutex> lock(mtx_sch); //Lock the mutex
+	std::unique_lock<std::mutex> lock(mtx); //Lock the mutex
 	scheduledTasks.push(task);
 	event.notify_one();
 
